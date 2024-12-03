@@ -1,0 +1,152 @@
+.App {
+  background-color: #FFF8EF;
+  min-height: 100vh;
+}
+
+.game {
+  display: flex;
+  border: 3px solid #cfcbc8;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #e7e3de;
+  cursor: pointer;
+  width: 50%;
+  margin: 0 auto 16px;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  height: 220px;
+}
+
+.small-image {
+  flex-shrink: 0;
+  width: 150px;
+  height: 225px;
+  object-fit: cover;
+  margin-right: 20px;
+  border-radius: 6px;
+  object-position: top;
+}
+
+.med-image {
+  flex-shrink: 0;
+  width: 450px;
+  height: auto;
+  margin-right: 20px;
+  border-radius: 8px;
+}
+
+.platform-icon {
+  flex-shrink: 0;
+  width: 100px;
+  height: auto;
+}
+
+.large-platform-icon {
+  flex-shrink: 0;
+  width: 250px;
+  height: auto;
+}
+
+.game-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.game-content h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+  text-align: left;
+}
+
+.gamebottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.gametop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.game-makers {
+  display: flex;
+  flex-direction: column;
+}
+
+.rmvButton {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: #e75454;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  margin: 10px 15px 0;
+}
+
+.game-makers h3 {
+  font-size: 1rem;
+  margin: 4px 0;
+  text-align: left;
+}
+
+.gamebottom-text p {
+  margin: 4px 0;
+  font-size: 1rem;
+  text-align: right;
+}
+
+.rating {
+  margin-top: 8px;
+  align-self: flex-start;
+  padding: 5px 10px;
+  margin: 25px 15px 0;
+  border-radius: 12px;
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+}
+
+
+.display-platforms {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 100%;
+  flex-wrap: wrap;
+}
+
+.platform {
+  margin: 3px;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.clickable {
+  color: #804625;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.clickable:hover {
+  text-decoration: none;
+}

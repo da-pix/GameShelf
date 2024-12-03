@@ -1,0 +1,49 @@
+.platform-container {
+    display: flex;
+}
+
+.addShelfButton {
+    margin: auto;
+}
+
+.rmvButton {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 8px;
+    background-color: #e75454;
+    color: white;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 10px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    width: 15%;
+}
+
+.addButton {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 8px;
+    background-color: #46b461;
+    color: white;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 10px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    width: 10%;
+}
+
+.already-div {
+    width: 100%;
+}
+
+.game-info {
+    width: 40%;
+}

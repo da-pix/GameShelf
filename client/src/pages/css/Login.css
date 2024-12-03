@@ -1,0 +1,60 @@
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px;
+  background: #f4f4f4;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button.toggle-button {
+  background: #6c757d;
+  margin-top: 10px;
+}
+
+.feedback {
+  margin-top: 10px;
+  color: #d9534f;
+}
+
+.availability {
+  display: block;
+  margin-top: 5px;
+}
+
+.available {
+  color: green;
+}
+
+.unavailable {
+  color: red;
+}
