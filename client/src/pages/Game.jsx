@@ -96,7 +96,7 @@ const Game = () => {
       <div className='game-info'>
         <span className="rating">{game.Overall_rating}</span>
         <h3 className="clickable" onClick={() => handleDev(game.Studio_name)}>Developer: {game.Studio_name}</h3>
-        <h3>Producer: {game.Producer}</h3>
+        <h3>Publisher: {game.Producer}</h3>
         <p>
           <strong>Release Date: </strong>
           {game.Release_date

@@ -36,7 +36,7 @@ const GameCard = ({ game, editable }) => {
                 e.stopPropagation();
                 handleDev(game.Studio_name);
               }}>Developer: {game.Studio_name}</h3>
-            <h3>Producer: {game.Producer}</h3>
+            <h3>Publisher: {game.Producer}</h3>
           </div>
           <p>
             <strong>Release Date: </strong>
