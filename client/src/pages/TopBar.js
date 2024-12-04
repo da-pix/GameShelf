@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { UserContext } from '../context/UserContext';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'
 import './css/TopBar.css';
 
 const TopBar = () => {
@@ -33,6 +34,18 @@ const TopBar = () => {
         navigate(`/shelf/${user.username.replace(/\s+/g, '__')}`);
     };
 
+
+
+    const handleRandGame = async () => {
+            try {
+              const res = await axios.get("http://localhost:8800/rand-game");
+              const gameName = res.data;
+              navigate(`/game/${gameName.replace(/\s+/g, '__')}`);
+            } catch (err) {
+              console.error(err);
+            }
+    };
+
     const toggleMenu = () => {
         setMenuOpen((prev) => !prev);
     };
@@ -57,12 +70,12 @@ const TopBar = () => {
                 <Link to="/">
                     <h1>Game Shelf</h1>
                 </Link>
-                <img className="icon" id="feeling-lucky-icon" src="/icons/dice.png" alt="Feeling lucky Icon" />
+                <img className="icon" onClick={handleRandGame} id="feeling-lucky-icon" src="/icons/dice.png" alt="Feeling lucky Icon" />
             </div>
             <div className="top-right-div">
                 <p>{user ? `Hello, ${user.username}` : 'Welcome, Guest!'}</p>
                 <img className="icon" id="friends-icon" src="/icons/friends.png" alt="Friends Icon" />
-                <img className="icon" id="shelf-icon" src="/icons/shelf.png" alt="Shelf Icon" onClick={handleShelf}/>
+                <img className="icon" id="shelf-icon" src="/icons/shelf.png" alt="Shelf Icon" onClick={handleShelf} />
                 <div className="profile-container">
                     <img
                         className="icon"

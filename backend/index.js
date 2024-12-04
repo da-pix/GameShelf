@@ -35,6 +35,17 @@ app.get("/AllGames", (req, res) => {
   });
 });
 
+// Get random game name
+app.get("/rand-game", (req, res) => {
+  const q = "SELECT game.Title FROM game ORDER BY RAND() LIMIT 1";
+  db.query(q, (err, data) => {
+    if (err) return res.json(err);
+    if (data.length === 0) return res.status(404).send("No games found.");
+    const gameName = data[0].Title
+    return res.json(gameName);
+  });
+});
+
 // Get top rated games as well as 5 random conmsoles to show on the landing page
 app.get("/landing-info", (req, res) => {
   // Get the 20 most rated game info
