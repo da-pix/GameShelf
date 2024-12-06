@@ -65,7 +65,7 @@
 .gamebottom {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .gametop {
@@ -77,6 +77,8 @@
 .game-makers {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  width: 60%;
 }
 
 .rmvButton {

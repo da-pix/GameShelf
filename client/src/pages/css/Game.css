@@ -47,3 +47,21 @@
 .game-info {
     width: 40%;
 }
+
+.Review_container {
+    width: 40%;
+}
+
+.stars {
+    display: flex;
+    justify-content: center;
+}
+
+textarea {
+    width: 70%;
+    /* Set a width */
+    height: 130px;
+    /* Set a height */
+    resize: none;
+    /* Prevent resizing */
+}

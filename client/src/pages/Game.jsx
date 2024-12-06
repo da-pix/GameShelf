@@ -4,9 +4,11 @@ import { UserContext } from '../context/UserContext';
 import PlatformCard from "./PlatformCard"
 import axios from 'axios';
 import './css/Game.css';
+import ReactStars from 'react-rating-stars-component';
 
 
 const Game = () => {
+  // Variables for game collection
   const { gameTitle } = useParams();
   const [game, setGame] = useState(null);
   const [platforms, setPlatforms] = useState([]);
@@ -16,6 +18,13 @@ const Game = () => {
   const { user } = useContext(UserContext);
   const [addToShelfMessage, setAddToShelfMessage] = useState('');
   const [inShelf, setInShelf] = useState(false);
+
+  // Variables for reviews
+  const [reviews, setReviews] = useState([]);
+  const [reviewMessage, setReviewMessage] = useState('');
+  const [rating, setRating] = useState(0);
+  const [reviewError, setReviewError] = useState('');
+
   const logged = !!user;
 
   useEffect(() => {
@@ -68,11 +77,56 @@ const Game = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8800/get_reviews`, {
+          params: {
+            Game_ID: game.Game_ID,
+            User_ID: user.userID,
+          }
+        });
+        const { reviewData, userReview } = res.data;
+        setReviews(reviewData);
+      } catch (err) {
+        setReviewError(err.response?.data?.error || 'Error fetching reviews');
+      }
+    };
+    if (game) fetchReviews();
+  }, [game]);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
   const handleDev = (gameTitle) => {
     navigate(`/game_studio/${gameTitle.replace(/\s+/g, '__')}`);
+  };
+
+  const handleReviewSubmit = async () => {
+    if (!logged) {
+      navigate('/login');
+      return;
+    }
+
+    if (!rating || !reviewMessage.trim()) {
+      setReviewError('Please provide a rating and a review message.');
+      return;
+    }
+
+    try {
+      const res = await axios.post(`http://localhost:8800/review`, {
+        Game_ID: game.Game_ID,
+        User_ID: user.userID,
+        Rating: rating,
+        ReviewMessage: reviewMessage,
+      });
+      setReviews([...reviews, res.data]); // Add new review to the list
+      setRating(0);
+      setReviewMessage('');
+      setReviewError('');
+    } catch (err) {
+      setReviewError(err.response?.data?.error || 'Error submitting review');
+    }
   };
 
   return (
@@ -112,6 +166,48 @@ const Game = () => {
         ) : (
           <p>No platform found</p>
         )}
+      </div>
+      <div className='Review_container'>
+        <h2>Reviews</h2>
+
+        {/* Review submission form */}
+        <div className="review-form">
+          <h3>Leave a Review</h3>
+          <div className='stars'>
+            <ReactStars
+              count={5}
+              value={rating}
+              onChange={(newRating) => setRating(newRating)}
+              size={45}
+              activeColor="#ffd700"
+            /></div>
+          <textarea className='review_textbox'
+            value={reviewMessage}
+            onChange={(e) => setReviewMessage(e.target.value)}
+            placeholder="Write your review here..."
+          />
+          <button onClick={handleReviewSubmit}>Submit Review</button>
+          {reviewError && <p className="error-message">{reviewError}</p>}
+        </div>
+        {/* Display existing reviews */}
+        <div className="reviews-list">
+          {reviews.length > 0 ? (
+            reviews.map((review) => (
+              <div key={review.Review_ID} className="review-item">
+                <ReactStars
+                  count={5}
+                  value={review.Rating}
+                  size={20}
+                  edit={false}
+                  activeColor="#ffd700"
+                />
+                <p><strong>{review.UserName}:</strong> {review.ReviewMessage}</p>
+              </div>
+            ))
+          ) : (
+            <p>No reviews yet. Be the first to leave one!</p>
+          )}
+        </div>
       </div>
     </div>
   );

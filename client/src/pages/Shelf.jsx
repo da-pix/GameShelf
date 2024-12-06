@@ -58,11 +58,6 @@ const Shelf = () => {
           <p>No games in shelf</p>
         )}
       </div>
-      {ownsPage && (
-        <div className="shelf-actions">
-          <button onClick={() => navigate(`/edit-shelf/${username}`)}>Edit My Shelf</button>
-        </div>
-      )}
     </div>
   );
 };

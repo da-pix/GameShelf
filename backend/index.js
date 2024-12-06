@@ -299,6 +299,31 @@ app.get('/Platform/:platformName', (req, res) => {
   });
 });
 
+// Get game reviews baseded on a games ID
+app.get('/get_reviews', (req, res) => {
+  const { Game_ID, User_ID } = req.query;
+  // Get all reviews except the one posted by the curent user if they are logged in
+  const reviewsQuery = `
+    SELECT U.User_username, R.Rating, R.Comment
+    FROM rates AS RS JOIN review AS R ON RS.Review_ID = R.Review_ID
+    JOIN user AS U ON RS.User_ID = U.User_ID
+    WHERE RS.Game_ID = ?
+    AND (? IS NULL OR RS.User_ID != ?)`;
+  db.query(reviewsQuery, [Game_ID, , User_ID], (err, reviewData) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    // get the review made by current user (if it exists)
+    const userReviewQuery = `
+      SELECT R.Rating, R.Comment
+      FROM rates AS RS JOIN review AS R ON RS.Review_ID = R.Review_ID
+      WHERE RS.Game_ID = ?
+      AND (? IS NOT NULL AND RS.User_ID = ?)`;
+    db.query(userReviewQuery, [User_ID], (err, userReviewData) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      const userReview = userReviewData[0];
+      return res.status(200).json({ reviewData, userReview });
+    })
+  })
+});
 
 app.listen(8800, () => {
   console.log("connected to backend!");
