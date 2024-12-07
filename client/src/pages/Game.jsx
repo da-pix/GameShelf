@@ -21,7 +21,7 @@ const Game = () => {
 
   // Variables for reviews
   const [reviews, setReviews] = useState([]);
-  const [reviewMessage, setReviewMessage] = useState('');
+  const [reviewComment, setreviewComment] = useState('');
   const [rating, setRating] = useState(0);
   const [reviewError, setReviewError] = useState('');
 
@@ -83,7 +83,7 @@ const Game = () => {
         const res = await axios.get(`http://localhost:8800/get_reviews`, {
           params: {
             Game_ID: game.Game_ID,
-            User_ID: user.userID,
+            User_ID: logged ? (user.userID) :(null)
           }
         });
         const { reviewData, userReview } = res.data;
@@ -107,23 +107,22 @@ const Game = () => {
       navigate('/login');
       return;
     }
-
-    if (!rating || !reviewMessage.trim()) {
-      setReviewError('Please provide a rating and a review message.');
+    if (!reviewComment.trim()) {
+      setReviewError('Please leave a comment for your review');
       return;
     }
-
+    if (!rating) {
+      setReviewError('Please give the game a rating');
+      return;
+    }
     try {
-      const res = await axios.post(`http://localhost:8800/review`, {
+      const res = await axios.post(`http://localhost:8800/submitReview`, {
         Game_ID: game.Game_ID,
         User_ID: user.userID,
         Rating: rating,
-        ReviewMessage: reviewMessage,
+        Comment: reviewComment,
       });
-      setReviews([...reviews, res.data]); // Add new review to the list
-      setRating(0);
-      setReviewMessage('');
-      setReviewError('');
+      window.location.reload();
     } catch (err) {
       setReviewError(err.response?.data?.error || 'Error submitting review');
     }
@@ -182,8 +181,8 @@ const Game = () => {
               activeColor="#ffd700"
             /></div>
           <textarea className='review_textbox'
-            value={reviewMessage}
-            onChange={(e) => setReviewMessage(e.target.value)}
+            value={reviewComment}
+            onChange={(e) => setreviewComment(e.target.value)}
             placeholder="Write your review here..."
           />
           <button onClick={handleReviewSubmit}>Submit Review</button>
@@ -201,7 +200,7 @@ const Game = () => {
                   edit={false}
                   activeColor="#ffd700"
                 />
-                <p><strong>{review.UserName}:</strong> {review.ReviewMessage}</p>
+                <p><strong>{review.User_username}:</strong> {review.Comment}</p>
               </div>
             ))
           ) : (
