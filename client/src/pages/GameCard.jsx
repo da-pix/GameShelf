@@ -1,6 +1,8 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import "./css/App.css";
+import ReactStars from 'react-rating-stars-component';
+
 
 const GameCard = ({ game, editable }) => {
   const navigate = useNavigate();
@@ -28,6 +30,15 @@ const GameCard = ({ game, editable }) => {
             <button className="rmvButton">X</button>
           )}
         </div>
+        <div className="rating">
+          <ReactStars
+            count={5}
+            value={game.Overall_rating}
+            size={20}
+            edit={false}
+            activeColor="#ffd700"
+          />
+        </div>
         <div className="gamebottom">
           <div className="game-makers">
             <h3
@@ -44,7 +55,6 @@ const GameCard = ({ game, editable }) => {
               ? new Date(game.Release_date).toLocaleDateString()
               : 'NA'}
           </p>
-          <span className="rating">{game.Overall_rating}</span>
         </div>
       </div>
     </div>

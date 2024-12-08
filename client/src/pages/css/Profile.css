@@ -8,7 +8,7 @@
     width: 100vw;
 }
 
-.display-Games{
+.display-Games {
     width: 100%;
 
 }
@@ -23,13 +23,17 @@
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 5%;
-    margin: 20px auto;
+    justify-content: center;
+    margin: 20px;
     width: 50%;
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #f9f9f9;
     padding: 20px;
+}
+
+.profile-header h1 {
+    margin: 0;
 }
 
 .profile-image {
@@ -49,10 +53,7 @@
     align-items: center;
     text-align: center;
     padding: 20px;
-    width: 100%;
 }
-
-
 
 .to-Shelf {
     padding: 10px 20px;

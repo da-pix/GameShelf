@@ -36,7 +36,7 @@ const Landing = () => {
           <p>No games found.</p>
         )}
       </div>
-      <h1> Top Rated Games </h1>
+      <h1> Top 10 Rated Games </h1>
       {loading ? (
         <p>Loading...</p>
       ) : (

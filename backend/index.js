@@ -219,7 +219,17 @@ app.get('/game/:gameTitle', (req, res) => {
       db.query(checkShelfQuery, [userID, ogTitle], (err, shelfResult) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         const isInShelf = shelfResult.length > 0;
-        return res.status(200).json({ game, platformData, isInShelf });
+        const gameID = game.Game_ID;
+        const genreQuery = `
+          SELECT G.Genre_name
+          FROM genre AS G
+          JOIN game_genre AS GG ON G.Genre_ID = GG.Genre_ID
+          WHERE GG.Game_ID = ?
+        `;
+        db.query(genreQuery, [gameID], (err, genreData) => {
+          if (err) return res.status(500).json({ error: 'Database error' });
+          return res.status(200).json({ game, platformData, genreData, isInShelf });
+        })
       });
     });
   });
@@ -302,7 +312,6 @@ app.get('/Platform/:platformName', (req, res) => {
 // Get game reviews baseded on a games ID
 app.get('/get_reviews', (req, res) => {
   const { Game_ID, User_ID } = req.query;
-  console.log(Game_ID, User_ID);
   // Get all reviews except the one posted by the curent user if they are logged in
   const reviewsQuery = `
     SELECT  R.Review_ID, U.User_username, R.Rating, R.Comment
@@ -310,11 +319,11 @@ app.get('/get_reviews', (req, res) => {
     JOIN user AS U ON RS.User_ID = U.User_ID
     WHERE RS.Game_ID = ?
     AND (? IS NULL OR RS.User_ID != ?)`;
-  db.query(reviewsQuery, [Game_ID, , User_ID, User_ID], (err, reviewData) => {
+  db.query(reviewsQuery, [Game_ID, User_ID, User_ID], (err, reviewData) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     // get the review made by current user (if it exists)
     const userReviewQuery = `
-      SELECT R.Rating, R.Comment
+      SELECT R.Review_ID, R.Rating, R.Comment
       FROM rates AS RS JOIN review AS R ON RS.Review_ID = R.Review_ID
       WHERE RS.Game_ID = ?
       AND (? IS NOT NULL AND RS.User_ID = ?)`;

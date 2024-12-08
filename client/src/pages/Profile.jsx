@@ -40,8 +40,7 @@ const Profile = () => {
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <img className="profile-image" alt="Profile Icon" />
-        <h1 className='profile-header'>{username.replace(/__/g, ' ')}'s Profile</h1>
+        <h1>{username.replace(/__/g, ' ')}'s Profile</h1>
       </div>
       <div>
         {profile.favGame !== null ? (

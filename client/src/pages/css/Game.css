@@ -1,43 +1,34 @@
 .platform-container {
     display: flex;
+    padding-top: 20px;
 }
 
 .addShelfButton {
     margin: auto;
 }
 
-.rmvButton {
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 8px;
-    background-color: #e75454;
-    color: white;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    margin: 10px;
-    border: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    width: 15%;
-}
-
+.rmvButton,
 .addButton {
     padding: 10px 20px;
     cursor: pointer;
     font-weight: bold;
     border-radius: 8px;
-    background-color: #46b461;
     color: white;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
     text-align: center;
     margin: 10px;
     border: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    width: 10%;
+    width: auto;
+    height: auto;
+    font-size: 0.9rem;
+}
+
+.addButton {
+    background-color: #46b461;
+}
+
+.rmvButton {
+    background-color: #e75454;
 }
 
 .already-div {
@@ -59,9 +50,118 @@
 
 textarea {
     width: 70%;
-    /* Set a width */
     height: 130px;
-    /* Set a height */
     resize: none;
-    /* Prevent resizing */
+}
+
+.review {
+    background-color: #e2cec6;
+    padding: 5px;
+    border: 2px solid #cfcbc8;
+}
+
+.review p {
+    text-align: left;
+    padding-inline: 10px;
+}
+
+.review-top {
+    display: flex;
+    justify-content: space-between;
+    height: auto;
+}
+
+.review-top h2 {
+    margin: 0;
+}
+
+.game-card {
+    width: 60%;
+    display: flex;
+    margin: 20px;
+}
+
+.title h1{
+    text-align: left;
+    margin: 0;
+}
+
+.buttons-and-rating {
+    display: flex;
+    justify-content: space-between;
+    height: 100px;
+    align-items: flex-start;
+    margin: 0;
+}
+
+.game-sidebar {
+    margin-left: 20px;
+}
+
+.shelf-buttons {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding-top: 15px;
+}
+.buttons-container{
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+}
+
+.fav-button{
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding-top: 15px;
+}
+
+.form-button{
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 8px;
+    background-color: #548fe7;
+    color: white;
+    text-align: center;
+    margin: 10px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    width: auto;
+    height: auto;
+    font-size: 0.9rem;
+}
+
+.buttons p {
+    margin: 0;
+}
+
+.creds-and-date {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0;
+    width: 100%;
+}
+
+.creds-and-date h3 {
+    margin-bottom: 3px;
+    font-size: 1rem;
+}
+
+.game-info {
+    display: flex;
+    width: 100%;
+}
+
+.reviews-list {
+    padding-top: 25px;
 }

@@ -52,7 +52,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8800/login', { username, password });
-      const { userID, username: loggedInUsername, shelfID } = response.data; // Include Shelf_ID
+      const { userID, username: loggedInUsername, shelfID } = response.data;
       setUser({ userID, username: loggedInUsername, shelfID });
       localStorage.setItem('user', JSON.stringify({ userID, username: loggedInUsername, shelfID }));
       console.log('User logged in:', loggedInUsername);

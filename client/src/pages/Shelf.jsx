@@ -36,16 +36,17 @@ const Shelf = () => {
     fetchShelf();
   }, [username]);
 
+  const handleUser = (username) => {
+    navigate(`/Profile/${username.replace(/\s+/g, '__')}`);
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <img className="profile-image" alt="Profile Icon" />
-        <h1>{username.replace(/__/g, ' ')}'s Game Shelf</h1>
+        <h1 onClick={(e) => { handleUser(username);}}>{username.replace(/__/g, ' ')}'s Game Shelf</h1>
       </div>
       <div className="display-Games">
         {games.length > 0 ? (
