@@ -1,8 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React from 'react';
 import './pages/css/App.css';
 import { UserProvider } from './context/UserContext';
@@ -16,6 +12,8 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import GStudio from "./pages/GStudio";
 import Platform from "./pages/Platform";
+import AdminTools from "./pages/Admintools";
+import Genre from "./pages/GameGenre";
 
 function App() {
   return (
@@ -33,6 +31,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/game_studio/:studioName" element={<GStudio />} />
             <Route path="/Platform/:platformName" element={<Platform />} />
+            <Route path="/Genre/:genreName" element={<Genre />} />
+            <Route path="/AdminTools" element={<AdminTools />}></Route>
           </Routes>
         </BrowserRouter>
       </div>

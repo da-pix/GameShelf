@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
@@ -11,7 +11,18 @@ const Login = () => {
   const [feedback, setFeedback] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const { setUser } = useContext(UserContext);
+
+  const logged = !!user;
+
+
+  useEffect(() => {
+    if (logged) {
+      navigate('/');
+      return;
+    }
+  }, []);
 
   // Handle username availability check
   const checkUsername = async (username) => {
@@ -52,9 +63,10 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8800/login', { username, password });
-      const { userID, username: loggedInUsername, shelfID } = response.data;
-      setUser({ userID, username: loggedInUsername, shelfID });
-      localStorage.setItem('user', JSON.stringify({ userID, username: loggedInUsername, shelfID }));
+      const { userID, username: loggedInUsername, isAdmin, shelfID } = response.data;
+      console.log(response.data);
+      setUser({ userID, username: loggedInUsername, isAdmin, shelfID });
+      localStorage.setItem('user', JSON.stringify({ userID, username: loggedInUsername, isAdmin, shelfID }));
       console.log('User logged in:', loggedInUsername);
       navigate('/');
     } catch (err) {
@@ -74,8 +86,8 @@ const Login = () => {
   return (
     <div className="login-container">
       <h1>{isSignUp ? 'Sign Up' : 'Log In'}</h1>
-      <form onSubmit={isSignUp ? handleSignUp : handleLogin}>
-        <div className="form-group">
+      <form className="login-form-group" onSubmit={isSignUp ? handleSignUp : handleLogin}>
+        <div className='input-con'>
           <label htmlFor="username">Username</label>
           <input
             type="text"
@@ -100,8 +112,8 @@ const Login = () => {
             </span>
           )}
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
+        <label htmlFor="password">Password</label>
+        <div className='password-container'>
           <input
             type="password"
             id="password"
@@ -111,7 +123,7 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit">{isSignUp ? 'Sign Up' : 'Log In'}</button>
+        <button className="login-button" type="submit">{isSignUp ? 'Sign Up' : 'Log In'}</button>
       </form>
       <p className="feedback">{feedback}</p>
       <button className="toggle-button" onClick={toggleMode}>

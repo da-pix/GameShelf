@@ -46,7 +46,7 @@ const Profile = () => {
         {profile.favGame !== null ? (
           <div className="fav-Game">
             <p className="Game-title">
-              {username.replace(/__/g, ' ')}'s favorite game
+              {username.replace(/__/g, ' ')}'s favorite game:
             </p>
             <GameCard key={profile.favGame.Game_ID} game={profile.favGame} />
           </div>

@@ -1,0 +1,158 @@
+.left-buttons-bar {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    max-height: 28vh;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px 0px 0px 8px;
+}
+
+.admin-button {
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    background-color: #ddd;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.admin-button.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.page-content {
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+.admin-tools-container {
+    display: flex;
+    width: 80%;
+    min-height: 65vh;
+}
+
+.request {
+    background-color: rgb(190, 185, 172);
+    padding: 5px;
+    text-align: left;
+}
+
+.req-top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.req-top h2,
+h3 {
+    padding: 0;
+    margin: 0;
+}
+
+.delButton,
+.approveButton {
+    padding: 6px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    margin: 10px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    width: auto;
+    height: auto;
+    font-size: 0.9rem;
+}
+
+.addButton {
+    background-color: #46b461;
+}
+
+.delButton {
+    background-color: #e75454;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: auto;
+}
+
+form[type="centred"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.form-group {
+    width: 60%;
+}
+
+.small-form-group {
+    width: 15%;
+    padding-bottom: 15px;
+}
+
+.cb-option {
+    display: flex;
+    justify-content: center;
+    background-color: #dee1e4;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px;
+    width: auto;
+}
+
+.cb-option input,
+label {
+    margin: 0 3px;
+    max-height: 20px;
+    width: auto;
+}
+
+.checkbox-group {
+    display: flex;
+    width: 80%;
+    column-gap: 10px;
+    row-gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    height: auto;
+    padding: 20px;
+}

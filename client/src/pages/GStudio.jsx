@@ -41,7 +41,7 @@ const GStudio = () => {
             )}
             <h1>{studio.Studio_name}</h1>
             <strong>Games made: </strong>
-            <div className="fav-Game">
+            <div className="game-wide-container">
                 {games.length > 0 ? (
                     games.map((game) => <GameCard key={game.Game_ID} game={game} />)
                 ) : (

@@ -21,6 +21,8 @@ const Game = () => {
   const [favoriteMessage, setFavoriteMessage] = useState('');
   const [inShelf, setInShelf] = useState(false);
   const [favorited, setFavorited] = useState(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [hours, setHours] = useState(0);
 
   // Variables for reviews
   const [reviews, setReviews] = useState([]);
@@ -41,11 +43,12 @@ const Game = () => {
         const res = await axios.get(`http://localhost:8800/game/${gameTitle.replace(/\s+/g, '__')}`, {
           params: { User_ID }
         });
-        const { game, platformData, genreData, isInShelf } = res.data;
+        const { game, platformData, genreData, isInShelf, isfavorited } = res.data;
         setGame(game);
-        setPlatforms(platformData)
-        setGenres(genreData)
-        setInShelf(isInShelf)
+        setPlatforms(platformData);
+        setGenres(genreData);
+        setInShelf(isInShelf);
+        setFavorited(isfavorited);
       } catch (err) {
         setError(err.response?.data?.error || 'Error fetching game');
       } finally {
@@ -61,11 +64,12 @@ const Game = () => {
         Shelf_ID: user.shelfID,
         User_ID: user.userID,
         Game_ID: game.Game_ID,
-        hours: 0, //******** */
+        hours: hours
       });
       setAddToShelfMessage('Game added to shelf');
       setTimeout(() => setAddToShelfMessage(''), 2000);
       setInShelf(true);
+      setIsPopupVisible(false);
     } catch (err) {
       setAddToShelfMessage(err.response?.data?.error || 'Error adding game to shelf');
     }
@@ -85,7 +89,35 @@ const Game = () => {
       setAddToShelfMessage(err.response?.data?.error || 'Error removing game from shelf');
     }
   };
-
+  const handleFavorite = async () => {
+    try {
+      const res = await axios.post('http://localhost:8800/Favorite', {
+        User_ID: user.userID,
+        Game_ID: game.Game_ID
+      });
+      setAddToShelfMessage('Game favorited');
+      setTimeout(() => setAddToShelfMessage(''), 2000);
+      setFavorited(true);
+    } catch (err) {
+      setAddToShelfMessage(err.response?.data?.error || 'Error favoriting game');
+      setTimeout(() => setAddToShelfMessage(''), 2000);
+    }
+  };
+  // **************************************************
+  const handleUnfavorite = async () => {
+    try {
+      const res = await axios.post('http://localhost:8800/Unfavorite', {
+        User_ID: user.userID,
+        Game_ID: game.Game_ID
+      });
+      setAddToShelfMessage('Game unfavorited');
+      setTimeout(() => setAddToShelfMessage(''), 2000);
+      setFavorited(false);
+    } catch (err) {
+      setAddToShelfMessage(err.response?.data?.error || 'Error unfavoriting game');
+      setTimeout(() => setAddToShelfMessage(''), 2000);
+    }
+  };
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -151,6 +183,10 @@ const Game = () => {
     }
   };
 
+  const handleGenre = (gameTitle) => {
+    navigate(`/Genre/${gameTitle.replace(/\s+/g, '__')}`);
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -177,27 +213,42 @@ const Game = () => {
                 ) : (
                   <button
                     className="addButton"
-                    onClick={logged ? handleAddToShelf : () => navigate(`/login`)}>
-                    Add to Shelf
+                    onClick={logged ? () => setIsPopupVisible(true) : () => navigate(`/login`)}
+                  >Add to Shelf
                   </button>
                 )}
-                <p>{addToShelfMessage}</p>
-              </div>
-              <div className='fav-button'>
                 {favorited ? (
-                  <button className="rmvButton" onClick={handleRemoveFromShelf}>
-                    Favorite
-                  </button>
-
-                ) : (
-                  <button
-                    className="addButton"
-                    onClick={logged ? handleAddToShelf : () => navigate(`/login`)}>
+                  <button className="rmvButton"
+                    onClick={handleUnfavorite}>
                     Unfavorite
                   </button>
+                ) : (
+                  <div>
+                    <button
+                      className="addButton"
+                      onClick={logged ? handleFavorite : () => navigate(`/login`)}>
+                      Favorite
+                    </button>
+                    {isPopupVisible && (
+                      <div className="popup-overlay">
+                        <div className="popup">
+                          <h3>Hours Played</h3>
+                          <input className='hours-input'
+                            type="number"
+                            value={hours}
+                            onChange={(e) => setHours(e.target.value)}
+                            min="0"
+                            placeholder="Enter number of hours"
+                          />
+                          <button onClick={handleAddToShelf}>Add</button>
+                          <button onClick={() => setIsPopupVisible(false)}>Cancel</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
-                <p>{favoriteMessage}</p>
               </div>
+              <p className='buttons-message'>{addToShelfMessage}</p>
             </div>
             <span className="rating">{game.Overall_rating}</span>
 
@@ -220,6 +271,14 @@ const Game = () => {
             </div>
           </div>
           <p>{game.Description || 'No information available'}</p>
+          <strong> Tags: </strong>
+          <div className='genre-container'>
+            {genres.length > 0 ? (
+              genres.map((genre) => (
+                <p className="genre" onClick={() => handleGenre(genre.Genre_name)} key={genre.Genre_ID}>{genre.Genre_name}, </p>
+              ))
+            ) : (<></>)}
+          </div>
         </div>
       </div>
 

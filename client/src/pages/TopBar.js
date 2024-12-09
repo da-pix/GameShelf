@@ -37,13 +37,18 @@ const TopBar = () => {
 
 
     const handleRandGame = async () => {
-            try {
-              const res = await axios.get("http://localhost:8800/rand-game");
-              const gameName = res.data;
-              navigate(`/game/${gameName.replace(/\s+/g, '__')}`);
-            } catch (err) {
-              console.error(err);
-            }
+        try {
+            const res = await axios.get("http://localhost:8800/rand-game");
+            const gameName = res.data;
+            navigate(`/game/${gameName.replace(/\s+/g, '__')}`);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // Shelf button funcionality
+    const handleAdminTools = () => {
+        navigate(`/AdminTools/`);
     };
 
     const toggleMenu = () => {
@@ -71,9 +76,10 @@ const TopBar = () => {
                     <h1>Game Shelf</h1>
                 </Link>
                 <img className="icon" onClick={handleRandGame} id="feeling-lucky-icon" src="/icons/dice.png" alt="Feeling lucky Icon" />
+                {(!!user && user.isAdmin) &&
+                    (<img className="icon" onClick={handleAdminTools} id="Admin-tools" src="/icons/gear.png" alt="Admin tools" />)}
             </div>
             <div className="top-right-div">
-                <p>{user ? `Hello, ${user.username}` : 'Welcome, Guest!'}</p>
                 <img className="icon" id="friends-icon" src="/icons/friends.png" alt="Friends Icon" />
                 <img className="icon" id="shelf-icon" src="/icons/shelf.png" alt="Shelf Icon" onClick={handleShelf} />
                 <div className="profile-container">
@@ -84,6 +90,7 @@ const TopBar = () => {
                         alt="Profile Icon"
                         onClick={toggleMenu}
                     />
+                    <p>{user ? `${user.username}` : ''}</p>
                     {menuOpen && (
                         <div className="profile-menu">
                             {!user ? (

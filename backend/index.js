@@ -2,6 +2,9 @@ import express from "express";
 import mysql from "mysql2";
 import cors from "cors";
 import bcrypt from "bcrypt";
+import multer from "multer";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 const app = express();
@@ -21,6 +24,33 @@ const db = mysql.createConnection({
 app.use(express.json());
 app.use(cors());
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const studioIconStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../client/public/studio'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'studio-' + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const studioIconUpload = multer({ storage: studioIconStorage });
+
+const gameImageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../client/public/images'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'game-' + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const gameImageUpload = multer({ storage: gameImageStorage });
+
 // Test route
 app.get("/", (req, res) => {
   res.json("hello this is the backend");
@@ -29,6 +59,33 @@ app.get("/", (req, res) => {
 // Get all games
 app.get("/AllGames", (req, res) => {
   const q = "SELECT * FROM game";
+  db.query(q, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// Get all genres
+app.get("/AllGenres", (req, res) => {
+  const q = "SELECT * FROM genre";
+  db.query(q, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// Get all platforms
+app.get("/AllPlatforms", (req, res) => {
+  const q = "SELECT * FROM platform";
+  db.query(q, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// Get all game studios
+app.get("/AllStudios", (req, res) => {
+  const q = "SELECT * FROM game_studio";
   db.query(q, (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -48,10 +105,10 @@ app.get("/rand-game", (req, res) => {
 
 // Get top rated games as well as 5 random conmsoles to show on the landing page
 app.get("/landing-info", (req, res) => {
-  // Get the 20 most rated game info
+  // Get the 10 most rated game info
   const gamesQuery = `
   SELECT G.Game_ID, G.Title, G.Producer, G.Coverart_fp, G.Overall_rating, G.Release_date, GS.Studio_ID, GS.Studio_name
-  FROM game AS G JOIN game_studio AS GS ON G.Studio_ID = GS.Studio_ID ORDER BY Overall_rating DESC LIMIT 20`;
+  FROM game AS G JOIN game_studio AS GS ON G.Studio_ID = GS.Studio_ID ORDER BY Overall_rating DESC LIMIT 10`;
   db.query(gamesQuery, (err, gameData) => {
     if (err) return res.json(err);
     // Get 5 random platforms
@@ -86,7 +143,11 @@ app.post('/signup', async (req, res) => {
         if (err) {
           return res.status(500).send('Error creating user.');
         }
-        res.status(201).send('User registered successfully.');
+        const userID = result.insertId;
+        const insertShelfQuery = 'INSERT INTO shelf (User_ID) VALUES (?)';
+        db.query(insertShelfQuery, [userID], (err, result) => {
+          res.status(201).send('User registered successfully.');
+        });
       });
     });
   });
@@ -98,7 +159,7 @@ app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   //Get user info for comparison from username as well as the user's shelf Id
   const query = `
-  SELECT U.User_ID, U.User_username,U.User_password, S.Shelf_ID 
+  SELECT U.User_ID, U.User_username,U.User_password, U.AdminFlag, S.Shelf_ID 
   FROM user AS U JOIN shelf AS S ON U.User_ID = S.User_ID 
   WHERE User_username = ?`;
   db.query(query, [username], (err, result) => {
@@ -108,7 +169,7 @@ app.post('/login', async (req, res) => {
     const user = result[0];
     const isMatch = bcrypt.compareSync(password, user.User_password);
     if (isMatch) {
-      res.status(200).send({ userID: user.User_ID, username: user.User_username, shelfID: user.Shelf_ID });
+      res.status(200).send({ userID: user.User_ID, username: user.User_username, isAdmin: user.AdminFlag, shelfID: user.Shelf_ID });
       console.log("User Logged in:", username);
     } else {
       res.status(400).send('Invalid password');
@@ -220,8 +281,9 @@ app.get('/game/:gameTitle', (req, res) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         const isInShelf = shelfResult.length > 0;
         const gameID = game.Game_ID;
+        // Get genres that the game belongs to
         const genreQuery = `
-          SELECT G.Genre_name
+          SELECT G.Genre_name, G.Genre_ID
           FROM genre AS G
           JOIN game_genre AS GG ON G.Genre_ID = GG.Genre_ID
           WHERE GG.Game_ID = ?
@@ -338,8 +400,6 @@ app.get('/get_reviews', (req, res) => {
 // Add a review
 app.post('/submitReview', (req, res) => {
   const { Game_ID, User_ID, Rating, Comment } = req.body;
-  console.log(Game_ID, User_ID, Rating, Comment);
-
   // Inser the review to the review table
   const submitQuery = 'INSERT INTO review (Comment, Rating) VALUES (?, ?)';
   db.query(submitQuery, [Comment, Rating], (err, result) => {
@@ -350,6 +410,152 @@ app.post('/submitReview', (req, res) => {
     db.query(ratesQuery, [User_ID, Game_ID, review_ID], (err, result) => {
       if (err) return res.status(500).send('Error submitting review.');
     })
+  });
+});
+
+// Get all existing game request submissions and the user that posted it
+app.get('/AdminTools/submissions', (req, res) => {
+  // Get all game requests and the username of the user that made it
+  const requestsQuery = `
+    SELECT  GR.Request_ID, GR.Title, GR.Developer, GR.Source_url, GR.User_ID, U.User_username
+    FROM game_request AS GR JOIN user AS U ON GR.User_ID = U.User_ID`;
+  db.query(requestsQuery, (err, requestsData) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    return res.status(200).json(requestsData);
+  })
+});
+
+// Add Created studio
+app.post('/AdminTools/add-studio', studioIconUpload.single('studioIcon'), (req, res) => {
+  const { studioName } = req.body;
+  const studioIcon_fp = req.file ? req.file.filename : null;
+  // Adds studio info
+  const insertStudioQuery = 'INSERT INTO game_studio (Studio_icon_fp, Studio_name) VALUES (?, ?)';
+  db.query(insertStudioQuery, [studioIcon_fp, studioName], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error saving studio to database' });
+    }
+    res.status(201).send('studio made successfully');
+  });
+});
+
+// Add genre
+app.post('/AdminTools/add-genre', (req, res) => {
+  const { Genre_name, Genre_description } = req.body;
+  // Adds genre info
+  const insertGenreQuery = 'INSERT INTO genre (Genre_description, Genre_name) VALUES (?, ?)';
+  db.query(insertGenreQuery, [Genre_description, Genre_name], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error saving genre to database' });
+    }
+    res.status(201).send('genre made successfully');
+  });
+});
+
+// Add game and connect it to all its, platforms, genres and its studio
+app.post('/AdminTools/add-game', gameImageUpload.single('gameImage'), (req, res) => {
+  const { title, producer, description, releaseDate, studioID } = req.body;
+  const genres = JSON.parse(req.body.genres);
+  const platforms = JSON.parse(req.body.platforms);
+  const gameImage_name = req.file.filename;
+  // Insert game into database
+  const insertGameQuery = `
+    INSERT INTO game (Title, Producer, Coverart_fp, Release_date, Studio_ID, Description) 
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  db.query(
+    insertGameQuery,
+    [title, producer, gameImage_name, releaseDate, studioID, description],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error saving game to database' });
+      }
+      const gameID = result.insertId;
+      const genreValues = genres.map((genreID) => [gameID, genreID]);
+      const platformValues = platforms.map((platformID) => [gameID, platformID]);
+      // Insert game and genres relation
+      const insertGenresQuery = 'INSERT INTO game_genre (Game_ID, Genre_ID) VALUES ?';
+      // Insert game an platforms relation
+      const insertPlatformsQuery = 'INSERT INTO plays_on (Game_ID, Platform_ID) VALUES ?';
+      db.query(insertGenresQuery, [genreValues], (err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Error saving game genres' });
+        }
+        db.query(insertPlatformsQuery, [platformValues], (err) => {
+          if (err) {
+            return res.status(500).json({ error: 'Error saving game platforms' });
+          }
+          res.status(201).send('Game created successfully');
+        });
+      });
+    });
+});
+
+//  Delete request indicated
+app.delete('/Del-request/:requestID', (req, res) => {
+  const { requestID } = req.params;
+  const deleteQuery = 'DELETE FROM game_request WHERE Request_ID = ?';
+  db.query(deleteQuery, [requestID], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error deleting request' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+    res.status(200).json({ message: 'Request deleted successfully' });
+  });
+});
+
+// Get genre info by genre name as well as getting every game that belongs to that genre
+app.get('/Genre/:genreName', (req, res) => {
+  const urlName = req.params.genreName;
+  const ogName = urlName.replace(/__/g, ' ');
+  // Get the platform by its unique name
+  const genreQuery = `SELECT * FROM genre AS G WHERE G.Genre_name = ?`;
+  db.query(genreQuery, [ogName], (err, genreData) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (genreData.length === 0) return res.status(404).json({ error: 'platform not found' });
+    const genre = genreData[0];
+    // Get data about the games that run on this platform
+    const gameQuery = `
+      SELECT G.Game_ID, G.Title, G.Producer, G.Coverart_fp, G.Overall_rating, G.Release_date, GS.Studio_ID, GS.Studio_name
+      FROM game AS G
+      JOIN game_studio AS GS ON GS.Studio_ID = G.Studio_ID
+      JOIN game_genre AS GG ON G.Game_ID = GG.Game_ID
+      JOIN genre AS GE ON GG.Genre_ID = GE.Genre_ID
+      WHERE GE.Genre_name = ?
+    `;
+    db.query(gameQuery, [ogName], (err, gameData) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      return res.status(200).json({ genreData: genre, gameData });
+    });
+  });
+});
+
+// Delete old favorite if exists and make selected game new favorite
+app.post('/Favorite', (req, res) => {
+  const { User_ID, Game_ID } = req.body;
+  // Delete old favorite game
+  const DeleteQuery = 'DELETE FROM favorite WHERE User_ID = ?';
+  db.query(DeleteQuery, [User_ID], (err, result) => {
+    if (err) return res.status(500).send('Error removing old favorite.');
+    // Add new game as favorite
+    const insertQuery = 'INSERT INTO favorite ( Game_ID, User_ID) VALUES (?, ?)';
+    db.query(insertQuery, [Game_ID, User_ID], (err, result) => {
+      if (err) return res.status(500).send('Error submitting review.');
+      res.status(200).json({ message: 'Game favorited successfully' });
+    })
+  });
+});
+
+// Delete selected game from favorite
+app.post('/Unfavorite', (req, res) => {
+  const { User_ID, Game_ID } = req.body;
+  // Delete favorite game
+  const DeleteQuery = 'DELETE FROM favorite WHERE User_ID = ?';
+  db.query(DeleteQuery, [User_ID], (err, result) => {
+    if (err) return res.status(500).send('Error removing old favorite.');
+    res.status(200).json({ message: 'Game unfavorited successfully' });
   });
 });
 

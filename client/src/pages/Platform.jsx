@@ -36,7 +36,7 @@ const Platform = () => {
             <img className="large-platform-icon" src={`/platform/${platform.Plat_icon_fp}`} alt={`${platform.Platform_name} cover art`} />
             <h1>{platform.Platform_name}</h1>
             <strong>Games playable on this platform:</strong>
-            <div className="display-Games">
+            <div className="game-wide-container">
                 {games.length > 0 ? (
                     games.map((game) => <GameCard key={game.Game_ID} game={game} />)
                 ) : (

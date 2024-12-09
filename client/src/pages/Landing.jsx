@@ -36,6 +36,7 @@ const Landing = () => {
           <p>No games found.</p>
         )}
       </div>
+      <img className="shelf-img" id="shelf" src="/icons/shelf_elem.png" alt="Shelf Icon" />
       <h1> Top 10 Rated Games </h1>
       {loading ? (
         <p>Loading...</p>

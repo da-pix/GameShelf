@@ -4,7 +4,7 @@ import "./css/App.css";
 import ReactStars from 'react-rating-stars-component';
 
 
-const GameCard = ({ game, editable }) => {
+const GameCard = ({ game, editable, onRemove }) => {
   const navigate = useNavigate();
 
   // game click funcionality
@@ -27,7 +27,10 @@ const GameCard = ({ game, editable }) => {
         <div className="gametop">
           <h2>{game.Title}</h2>
           {editable && (
-            <button className="rmvButton">X</button>
+            <button className="rmvButton" onClick={(e) => {
+              e.stopPropagation();
+              onRemove(game.Game_ID);
+            }}> X</button>
           )}
         </div>
         <div className="rating">
