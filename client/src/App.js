@@ -24,7 +24,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/profile/:username" element={<Profile />} />
-            <Route path="/result" element={<Result />} />
+            <Route path="/results" element={<Result />} />
             <Route path="/gameform" element={<Gameform />} />
             <Route path="/game/:gameTitle" element={<Game />} />
             <Route path="/shelf/:username" element={<Shelf />} />

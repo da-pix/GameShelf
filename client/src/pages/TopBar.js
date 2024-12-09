@@ -13,6 +13,8 @@ const TopBar = () => {
     const [searchResults, setSearchResults] = useState('');
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const navigate = useNavigate();
+    const [searchQuery, setSearchQuery] = useState('');
+
 
     // Logout button funcionality
     const handleLogout = () => {
@@ -107,6 +109,14 @@ const TopBar = () => {
         };
     }, [menuOpen, follwoingMenuOpen]);
 
+
+    const handleSearch = () => {
+        if (!searchQuery.trim()) {
+            return; // Don't search for empty input
+        }
+        navigate(`/results?query=${encodeURIComponent(searchQuery)}`);
+    };
+
     return (
         <div className="top-bar">
             <div className="top-left-div">
@@ -116,6 +126,17 @@ const TopBar = () => {
                 <img className="icon" onClick={handleRandGame} id="feeling-lucky-icon" src="/icons/dice.png" alt="Feeling lucky Icon" />
                 {(!!user && user.isAdmin) &&
                     (<img className="icon" onClick={handleAdminTools} id="Admin-tools" src="/icons/gear.png" alt="Admin tools" />)}
+            </div>
+
+            <div className="search-bar">
+                <input
+                    type="text"
+                    placeholder="Search games..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                />
+                <button onClick={handleSearch} className="search-button">Search</button>
             </div>
             <div className="top-right-div">
                 <img

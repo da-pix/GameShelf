@@ -663,6 +663,23 @@ app.post('/unfollow', (req, res) => {
   });
 });
 
+app.get('/find-games', (req, res) => {
+  const query = req.query.query;
+  const searchQuery = `
+      SELECT * FROM game 
+      WHERE Title LIKE ?
+  `;
+  db.query(searchQuery, [`%${query}%`], (err, results) => {
+      if (err) {
+          return res.status(500).json({ error: 'Database error' });
+      }
+      if (results.length === 0) {
+          return res.status(404).json({ error: 'No games found' });
+      }
+      res.status(200).json(results);
+  });
+});
+
 app.listen(8800, () => {
   console.log("connected to backend!");
 });

@@ -161,3 +161,7 @@
   padding: 30px ;
   justify-content: center;
 }
+
+.results-container h1{
+  text-align: center;
+}
