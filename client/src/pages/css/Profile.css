@@ -75,3 +75,8 @@ align-items: center;}
 .to-Shelf:hover {
     background-color: #4d2912;
 }
+
+.follow-button{
+    width: auto;
+    margin-left: 20px;
+}

@@ -7,6 +7,11 @@ import './css/TopBar.css';
 const TopBar = () => {
     const { user, setUser } = useContext(UserContext);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [follwoingMenuOpen, setFollwoingMenuOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('view');
+    const [following, setFollowing] = useState([]);
+    const [searchResults, setSearchResults] = useState('');
+    const [userSearchQuery, setUserSearchQuery] = useState('');
     const navigate = useNavigate();
 
     // Logout button funcionality
@@ -15,6 +20,39 @@ const TopBar = () => {
         localStorage.removeItem('user');
         setMenuOpen(false);
         navigate('/');
+    };
+
+    // Fetch following list
+    useEffect(() => {
+        if (follwoingMenuOpen && activeTab === 'view' && user) {
+            const fetchFollowing = async () => {
+                try {
+                    const res = await axios.get('http://localhost:8800/following', { params: { userID: user.userID } });
+                    setFollowing(res.data);
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+            fetchFollowing();
+        }
+    }, [follwoingMenuOpen, activeTab, user]);
+
+    // Handle user search
+    const handleUserSearch = async () => {
+        if (!userSearchQuery.trim()) return;
+        try {
+            const res = await axios.get('http://localhost:8800/find-user', { params: { username: userSearchQuery } });
+            setSearchResults(res.data);
+            console.log(res.data);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleUser = (username) => {
+        navigate(`/Profile/${username.replace(/\s+/g, '__')}`);
+        setFollwoingMenuOpen(false);
     };
 
     // Login button funcionality
@@ -33,8 +71,6 @@ const TopBar = () => {
     const handleShelf = () => {
         navigate(`/shelf/${user.username.replace(/\s+/g, '__')}`);
     };
-
-
 
     const handleRandGame = async () => {
         try {
@@ -61,13 +97,15 @@ const TopBar = () => {
             if (menuOpen && !event.target.closest('.profile-container')) {
                 setMenuOpen(false);
             }
+            if (follwoingMenuOpen && !event.target.closest('.friends-popup') && !event.target.closest('#friends-icon')) {
+                setFollwoingMenuOpen(false);
+            }
         };
         document.addEventListener('click', handleClickOutside);
         return () => {
             document.removeEventListener('click', handleClickOutside);
         };
-    }, [menuOpen]);
-
+    }, [menuOpen, follwoingMenuOpen]);
 
     return (
         <div className="top-bar">
@@ -80,7 +118,70 @@ const TopBar = () => {
                     (<img className="icon" onClick={handleAdminTools} id="Admin-tools" src="/icons/gear.png" alt="Admin tools" />)}
             </div>
             <div className="top-right-div">
-                <img className="icon" id="friends-icon" src="/icons/friends.png" alt="Friends Icon" />
+                <img
+                    className="icon"
+                    id="friends-icon"
+                    src="/icons/friends.png"
+                    alt="Friends Icon"
+                    onClick={() => setFollwoingMenuOpen(!follwoingMenuOpen)}
+                />
+                {follwoingMenuOpen && (
+                    <div className="friends-popup">
+                        <div className="popup-header">
+                            <button
+                                className={`tab-button ${activeTab === 'view' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('view')}
+                            >
+                                View
+                            </button>
+                            <button
+                                className={`tab-button ${activeTab === 'find' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('find')}
+                            >
+                                Find
+                            </button>
+                        </div>
+                        <div className="popup-content">
+                            {activeTab === 'view' && (
+                                <div className="view-tab">
+                                    <h3>Following</h3>
+                                    {following.length > 0 ? (
+                                        <ul>
+                                            {following.map((user) => (
+                                                <div className='User-listing' onClick={(e) => { handleUser(user.User_username); }}>
+                                                    <li key={user.User_ID}>{user.User_username}</li>
+                                                </div>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p>You are not following anyone yet.</p>
+                                    )}
+                                </div>
+                            )}
+                            {activeTab === 'find' && (
+                                <div className="find-tab">
+                                    <div className='find-tab-top'>
+                                        <input
+                                            type="text"
+                                            placeholder="Search for user"
+                                            value={userSearchQuery}
+                                            onChange={(e) => setUserSearchQuery(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleUserSearch()}
+                                        />
+                                        <button onClick={handleUserSearch}>Search</button>
+                                    </div>
+                                    {searchResults ? (
+                                        <div className='User-listing' onClick={(e) => { handleUser(searchResults.User_username); }}>
+                                            <p>{searchResults.User_username}</p>
+                                        </div>
+                                    ) : (
+                                        <p>No users found.</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
                 <img className="icon" id="shelf-icon" src="/icons/shelf.png" alt="Shelf Icon" onClick={handleShelf} />
                 <div className="profile-container">
                     <img

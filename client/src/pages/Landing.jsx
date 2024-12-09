@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-//import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import './css/landing.css';
 import GameCard from "./GameCard"
@@ -9,7 +8,6 @@ const Landing = () => {
   const [games, setGames] = useState([]);
   const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
-  //const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTopGames = async () => {

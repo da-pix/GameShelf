@@ -51,6 +51,18 @@ const gameImageStorage = multer.diskStorage({
 
 const gameImageUpload = multer({ storage: gameImageStorage });
 
+const platformIconStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../client/public/platform'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'platform-' + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const platIconUpload = multer({ storage: platformIconStorage });
+
 // Test route
 app.get("/", (req, res) => {
   res.json("hello this is the backend");
@@ -439,6 +451,21 @@ app.post('/AdminTools/add-studio', studioIconUpload.single('studioIcon'), (req, 
   });
 });
 
+// Add Created Platform
+app.post('/AdminTools/add-platform', platIconUpload.single('platformIcon'), (req, res) => {
+  const { platformName, releaseDate } = req.body;
+  const platformIcon_fp = req.file.filename;
+  console.log(platformName, releaseDate, platformIcon_fp);
+  // Adds studio info
+  const insertStudioQuery = 'INSERT INTO platform (Platform_name, Plat_icon_fp, Release_date) VALUES (?, ?, ?)';
+  db.query(insertStudioQuery, [platformName, platformIcon_fp, releaseDate], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error saving platform to database' });
+    }
+    res.status(201).send('platform made successfully');
+  });
+});
+
 // Add genre
 app.post('/AdminTools/add-genre', (req, res) => {
   const { Genre_name, Genre_description } = req.body;
@@ -556,6 +583,83 @@ app.post('/Unfavorite', (req, res) => {
   db.query(DeleteQuery, [User_ID], (err, result) => {
     if (err) return res.status(500).send('Error removing old favorite.');
     res.status(200).json({ message: 'Game unfavorited successfully' });
+  });
+});
+
+// get a user's people they follow
+app.get('/following', async (req, res) => {
+  const { userID } = req.query;
+  // Get users that given user follows
+  const follingQuery = `
+    SELECT U.User_username 
+    FROM follows AS F JOIN User AS U ON U.User_ID = F.User_ID
+    WHERE Followed_by_user_ID = ?`
+  db.query(follingQuery, [userID], (err, result) => {
+    if (err) return res.status(500).send('Error getting following list.');
+    const followingList = result;
+    res.json(followingList);
+  });
+});
+
+// get a user by sarching for their name
+app.get('/find-user', async (req, res) => {
+  const { username } = req.query;
+  // Use user input to get a user by that name
+  const follingQuery = `SELECT U.User_username FROM User AS U WHERE U.User_username = ?`
+  db.query(follingQuery, [username], (err, result) => {
+    if (err) return res.status(500).send('Error getting user.');
+    const followingList = result[0];
+    res.json(followingList);
+  });
+});
+
+// Check if a user follows another
+app.get('/is-following', (req, res) => {
+  const { username, currentUserID } = req.query;
+  // return a bool of weather or not thecurrent user follows the profile user
+  const followQuery = `
+    SELECT 1 
+    FROM follows AS F
+    JOIN user AS U ON F.User_ID = U.User_ID
+    WHERE F.Followed_by_user_ID = ? AND U.User_username = ?
+  `;
+  db.query(followQuery, [currentUserID, username], (err, result) => {
+    if (err) return res.status(500).send('Error checking follow status.');
+    res.json({ isFollowing: result.length > 0 });
+  });
+});
+
+// Follow another user
+app.post('/follow', (req, res) => {
+  const { currentUserID, username } = req.body;
+
+  const followQuery = `
+    INSERT INTO follows (Followed_by_user_ID, User_ID)
+    SELECT ?, U.User_ID
+    FROM user AS U
+    WHERE U.User_username = ?
+  `;
+
+  db.query(followQuery, [currentUserID, username], (err, result) => {
+    if (err) return res.status(500).send('Error following the user.');
+    res.status(200).send('User followed successfully.');
+  });
+});
+
+// Unfollow user
+app.post('/unfollow', (req, res) => {
+  const { currentUserID, username } = req.body;
+
+  const unfollowQuery = `
+    DELETE F 
+    FROM follows AS F
+    JOIN user AS U ON F.User_ID = U.User_ID
+    WHERE F.Followed_by_user_ID = ? AND U.User_username = ?
+  `;
+
+  db.query(unfollowQuery, [currentUserID, username], (err, result) => {
+    if (err) return res.status(500).send('Error unfollowing the user.');
+    res.status(200).send('User unfollowed successfully.');
   });
 });
 

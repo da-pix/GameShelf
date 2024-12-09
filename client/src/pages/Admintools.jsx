@@ -15,14 +15,18 @@ const AdminTools = () => {
     const [studioName, setStudioName] = useState('');
     const [genreName, setGenreName] = useState('');
     const [genreDesc, setGenreDesc] = useState('');
-    const [studioIcon, setStudioIcon] = useState(null);
-    const [gameImage, setGameImage] = useState(null);
+    const [studioIcon, setStudioIcon] = useState('');
+    const [gameImage, setGameImage] = useState('');
+    const [platformIcon, setPlatformIcon] = useState('');
     const [studioSuccessMessage, setStudioSuccessMessage] = useState('');
+    const [platSuccessMessage, setPlatSuccessMessage] = useState('');
     const [genreSuccessMessage, setgenreSuccessMessage] = useState('');
     const [gameTitle, setGameTitle] = useState('');
+    const [platformName, setPlatformName] = useState('');
     const [producer, setProducer] = useState('');
     const [gameDescription, setGameDescription] = useState('');
     const [releaseDate, setReleaseDate] = useState('');
+    const [platReleaseDate, setPlatReleaseDate] = useState('');
     const [selectedGenres, setSelectedGenres] = useState([]);
     const [selectedPlatforms, setSelectedPlatforms] = useState([]);
     const [selectedStudio, setSelectedStudio] = useState(null);
@@ -51,24 +55,21 @@ const AdminTools = () => {
             return;
         }
         fetchSubmissions();
-    }, []);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const genreRes = await axios.get('http://localhost:8800/AllGenres');
-                const platformRes = await axios.get('http://localhost:8800/AllPlatforms');
-                const studioRes = await axios.get('http://localhost:8800/AllStudios');
-                setGenres(genreRes.data);
-                setPlatforms(platformRes.data);
-                setStudios(studioRes.data);
-            } catch (err) {
-                console.error("Error fetching data:", err);
-            }
-        };
         fetchData();
     }, []);
 
+    const fetchData = async () => {
+        try {
+            const genreRes = await axios.get('http://localhost:8800/AllGenres');
+            const platformRes = await axios.get('http://localhost:8800/AllPlatforms');
+            const studioRes = await axios.get('http://localhost:8800/AllStudios');
+            setGenres(genreRes.data);
+            setPlatforms(platformRes.data);
+            setStudios(studioRes.data);
+        } catch (err) {
+            console.error("Error fetching data:", err);
+        }
+    };
     const handleAddStudio = async (e) => {
         e.preventDefault();
         if (!studioName) {
@@ -84,11 +85,38 @@ const AdminTools = () => {
             });
             setStudioSuccessMessage("Game studio added successfully");
             setStudioName('');
-            setStudioIcon(null);
+            setStudioIcon('');
             setTimeout(() => setStudioSuccessMessage(''), 2000);
+            fetchData();
         } catch (err) {
             console.error(err);
             alert('Failed to add studio. Please try again.');
+        }
+    };
+
+    const handleAddPlatform = async (e) => {
+        e.preventDefault();
+        if (!platformName || !platReleaseDate || !platformIcon) {
+            alert('Please fill all fields');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('platformName', platformName);
+        formData.append('releaseDate', platReleaseDate);
+        formData.append('platformIcon', platformIcon);
+        try {
+            const res = await axios.post('http://localhost:8800/AdminTools/add-platform', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            setPlatSuccessMessage("Platform added successfully");
+            setPlatformName('');
+            setPlatReleaseDate('');
+            setPlatformIcon('');
+            setTimeout(() => setPlatSuccessMessage(''), 2000);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to add platform. Please try again.');
         }
     };
 
@@ -107,6 +135,7 @@ const AdminTools = () => {
             setGenreName('');
             setGenreDesc('');
             setTimeout(() => setgenreSuccessMessage(''), 2000);
+            fetchData();
         } catch (err) {
             console.error(err);
             alert('Failed to add studio. Please try again.');
@@ -176,6 +205,7 @@ const AdminTools = () => {
         'Add Game',
         'Create Game Genre',
         'Add Studio',
+        'Add Platform',
         'Logs'
     ];
 
@@ -397,6 +427,47 @@ const AdminTools = () => {
                         {studioSuccessMessage && <p>{studioSuccessMessage}</p>}
                     </div>
                 );
+            case 'Add Platform':
+                return (<div>
+                    <h2>Add Platform</h2>
+                    <form onSubmit={handleAddPlatform} type="centred">
+                        <div className="form-group">
+                            <label htmlFor="platformName">Platform name:</label>
+                            <input
+                                type="text"
+                                id="platformName"
+                                name="platformName"
+                                placeholder="Enter platform name"
+                                value={platformName}
+                                onChange={(e) => setPlatformName(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="small-form-group" >
+                            <label htmlFor="releaseDate">Release Date:</label>
+                            <input
+                                type="date"
+                                id="releaseDate"
+                                name="releaseDate"
+                                value={platReleaseDate}
+                                onChange={(e) => setPlatReleaseDate(e.target.value)}
+                                required
+                            />
+                        </div> <div className="form-group">
+                            <label htmlFor="platformIcon">Platform Icon:</label>
+                            <input
+                                type="file"
+                                id="platformIcon"
+                                name="platformIcon"
+                                accept="image/*"
+                                onChange={(e) => setPlatformIcon(e.target.files[0])}
+                                required
+                            />
+                        </div>
+                        <button type="submit">Add Game</button>
+                    </form>
+                    {platSuccessMessage && <p>{platSuccessMessage}</p>}
+                </div>);
             case 'Logs':
                 return <p>Content for Logs</p>;
         }

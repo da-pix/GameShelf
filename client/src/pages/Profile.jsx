@@ -3,22 +3,26 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import axios from 'axios';
 import './css/Profile.css';
-import GameCard from "./GameCard"
+import GameCard from './GameCard';
 
 const Profile = () => {
   const { username } = useParams();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFollowing, setIsFollowing] = useState(false);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
   const ownsPage = user && user.username === username.replace(/__/g, ' ');
 
+  // Fetch profile details
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(`http://localhost:8800/profile/${username.replace(/\s+/g, '__')}`);
+        const res = await axios.get(
+          `http://localhost:8800/profile/${username.replace(/\s+/g, '__')}`
+        );
         setProfile(res.data);
       } catch (err) {
         setError(err.response?.data?.error || 'Error fetching profile');
@@ -29,10 +33,38 @@ const Profile = () => {
     fetchProfile();
   }, [username]);
 
+  useEffect(() => {
+    if (!user || ownsPage) return;
+    const checkFollowStatus = async () => {
+      try {
+        const res = await axios.get('http://localhost:8800/is-following', { params: { username, currentUserID: user.userID } });
+        setIsFollowing(res.data.isFollowing);
+      } catch (err) {
+        console.error('Error checking follow status:', err);
+      }
+    };
+
+    checkFollowStatus();
+  }, [user, username, ownsPage]);
+
+  const handleFollowToggle = async () => {
+    try {
+      if (isFollowing) {
+        await axios.post('http://localhost:8800/unfollow', { currentUserID: user.userID, username });
+        setIsFollowing(false);
+      } else {
+        await axios.post('http://localhost:8800/follow', { currentUserID: user.userID, username });
+        setIsFollowing(true);
+      }
+    } catch (err) {
+      console.error('Error updating follow status:', err);
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
-  // Shelf button funcionality
+  // Shelf button functionality
   const handleShelf = () => {
     navigate(`/shelf/${username.replace(/\s+/g, '__')}`);
   };
@@ -41,6 +73,11 @@ const Profile = () => {
     <div className="profile-page">
       <div className="profile-header">
         <h1>{username.replace(/__/g, ' ')}'s Profile</h1>
+        {!ownsPage && user && (
+          <button className="follow-button" onClick={handleFollowToggle}>
+            {isFollowing ? 'Unfollow' : 'Follow'}
+          </button>
+        )}
       </div>
       <div>
         {profile.favGame !== null ? (
@@ -51,15 +88,12 @@ const Profile = () => {
             <GameCard key={profile.favGame.Game_ID} game={profile.favGame} />
           </div>
         ) : (
-          <p className="fav-Game-title">Havent found their favourite yet!</p>
+          <p className="fav-Game-title">Haven't found their favorite yet!</p>
         )}
       </div>
-      <button className="to-Shelf" onClick={handleShelf}>Check out Game Shelf</button>
-      {ownsPage && (
-        <div className="shelf-actions">
-          <p className='clickable'>Edit profile</p>
-        </div>
-      )}
+      <button className="to-Shelf" onClick={handleShelf}>
+        Check out Game Shelf
+      </button>
     </div>
   );
 };

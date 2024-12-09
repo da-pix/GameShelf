@@ -79,3 +79,119 @@
 #feeling-lucky-icon {
     padding-left: 50px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.friends-popup {
+    position: fixed;
+    top: 13%;
+    left: 71%;
+    width: 350px;
+    height: 400px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #7F4F24;
+    color: #fff;
+    padding: 10px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.tab-button.active {
+    background-color: #5C3A27;
+    font-weight: bold;
+}
+
+.popup-content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.popup-content h3 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+.view-tab ul,
+.find-tab ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.view-tab li,
+.find-tab li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.view-tab li:hover,
+.find-tab li:hover {
+    background-color: #f0f0f0;
+}
+
+/* Search bar styling */
+.find-tab input[type='text'] {
+    width: calc(100% - 80px);
+    padding: 8px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.find-tab button {
+    padding: 8px 12px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 65px;
+}
+
+.find-tab button:hover {
+    background-color: #555;
+}
+
+.find-tab-top {
+    display: flex;
+}
+
+.User-listing {
+    background-color: #e2e1df;
+    border-radius: 4px;
+    margin: 0;
+    padding: 1px 20px;
+    font-weight: bold
+}
