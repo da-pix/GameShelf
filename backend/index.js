@@ -394,45 +394,64 @@ app.get('/Platform/:platformName', (req, res) => {
   });
 });
 
-// Get game reviews baseded on a games ID
+// Get game reviews based on a game's ID
 app.get('/get_reviews', (req, res) => {
   const { Game_ID, User_ID } = req.query;
-  // Get all reviews except the one posted by the curent user if they are logged in
+  // Get all reviews for the game
   const reviewsQuery = `
     SELECT  R.Review_ID, U.User_username, R.Rating, R.Comment
-    FROM rates AS RS JOIN review AS R ON RS.Review_ID = R.Review_ID
+    FROM rates AS RS 
+    JOIN review AS R ON RS.Review_ID = R.Review_ID
     JOIN user AS U ON RS.User_ID = U.User_ID
-    WHERE RS.Game_ID = ?
-    AND (? IS NULL OR RS.User_ID != ?)`;
-  db.query(reviewsQuery, [Game_ID, User_ID, User_ID], (err, reviewData) => {
+    WHERE RS.Game_ID = ?`;
+  db.query(reviewsQuery, [Game_ID], (err, reviewData) => {
     if (err) return res.status(500).json({ error: 'Database error' });
-    // get the review made by current user (if it exists)
+    // Get the review made by the current user (if it exists)
     const userReviewQuery = `
       SELECT R.Review_ID, R.Rating, R.Comment
-      FROM rates AS RS JOIN review AS R ON RS.Review_ID = R.Review_ID
+      FROM rates AS RS 
+      JOIN review AS R ON RS.Review_ID = R.Review_ID
       WHERE RS.Game_ID = ?
       AND (? IS NOT NULL AND RS.User_ID = ?)`;
     db.query(userReviewQuery, [Game_ID, User_ID, User_ID], (err, userReviewData) => {
       if (err) return res.status(500).json({ error: 'Database error' });
-      const userReview = userReviewData[0];
+      const userReview = userReviewData[0]; // Get the user's review (if it exists)
       return res.status(200).json({ reviewData, userReview });
-    })
-  })
+    });
+  });
 });
+
 
 // Add a review
 app.post('/submitReview', (req, res) => {
   const { Game_ID, User_ID, Rating, Comment } = req.body;
-  // Inser the review to the review table
+  // Insert the review into the review table
   const submitQuery = 'INSERT INTO review (Comment, Rating) VALUES (?, ?)';
   db.query(submitQuery, [Comment, Rating], (err, result) => {
     if (err) return res.status(500).send('Error submitting review.');
-    const review_ID = result.insertId
-    // connect the user id,  game id and review id in the rates table
+    const review_ID = result.insertId;
+    // Connect the user ID, game ID, and review ID in the rates table
     const ratesQuery = 'INSERT INTO rates (User_ID, Game_ID, Review_ID) VALUES (?, ?, ?)';
     db.query(ratesQuery, [User_ID, Game_ID, review_ID], (err, result) => {
       if (err) return res.status(500).send('Error submitting review.');
-    })
+      // Calculate the new overall rating for the game
+      const avgRatingQuery = `
+        SELECT AVG(Rating) AS average_rating
+        FROM review AS R
+        JOIN rates AS RS ON R.Review_ID = RS.Review_ID
+        WHERE RS.Game_ID = ?
+      `;
+      db.query(avgRatingQuery, [Game_ID], (err, result) => {
+        if (err) return res.status(500).send('Error calculating average rating.');
+        const newAvgRating = result[0].average_rating;
+        // Update the overall rating in the game table
+        const updateGameRatingQuery = 'UPDATE game SET Overall_rating = ? WHERE Game_ID = ?';
+        db.query(updateGameRatingQuery, [newAvgRating, Game_ID], (err, result) => {
+          if (err) return res.status(500).send('Error updating overall rating.');
+          return res.status(200).send('Review submitted and overall rating updated successfully.');
+        });
+      });
+    });
   });
 });
 

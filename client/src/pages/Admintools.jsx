@@ -206,7 +206,6 @@ const AdminTools = () => {
         'Create Game Genre',
         'Add Studio',
         'Add Platform',
-        'Logs'
     ];
 
     const renderContent = () => {
@@ -468,8 +467,6 @@ const AdminTools = () => {
                     </form>
                     {platSuccessMessage && <p>{platSuccessMessage}</p>}
                 </div>);
-            case 'Logs':
-                return <p>Content for Logs</p>;
         }
     };
 

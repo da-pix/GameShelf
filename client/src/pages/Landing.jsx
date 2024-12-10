@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../context/UserContext';
 import axios from 'axios'
 import './css/landing.css';
 import GameCard from "./GameCard"
 import PlatformCard from "./PlatformCard"
 
-const Landing = () => {
+const Landing = () => { 
   const [games, setGames] = useState([]);
   const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     const fetchTopGames = async () => {
@@ -24,6 +26,14 @@ const Landing = () => {
     };
     fetchTopGames();
   }, []);
+
+  // Handle the "Request a Game" button click
+  const handleRequestGame = () => {
+    const logged = !!user;
+    if (!logged) {
+    } else {
+    }
+  };
 
   return (
     <div className="landing-container">
@@ -47,8 +57,11 @@ const Landing = () => {
           )}
         </div>
       )}
+      <button onClick={handleRequestGame} className="request-game-button">
+        Request a Game
+      </button>
     </div>
   );
 };
 
-export default Landing
+export default Landing;

@@ -102,7 +102,6 @@ const Game = () => {
       setTimeout(() => setAddToShelfMessage(''), 2000);
     }
   };
-  // **************************************************
   const handleUnfavorite = async () => {
     try {
       const res = await axios.post('http://localhost:8800/Unfavorite', {
@@ -161,26 +160,19 @@ const Game = () => {
       return;
     }
     try {
-      const res = await axios.post(`http://localhost:8800/submitReview`, {
+      await axios.post(`http://localhost:8800/submitReview`, {
         Game_ID: game.Game_ID,
         User_ID: user.userID,
         Rating: rating,
         Comment: reviewComment,
       });
+      // Reload the page after review submission
+      window.location.reload();
     } catch (err) {
       setReviewError(err.response?.data?.error || 'Error submitting review');
     }
-    navigate(0)
   };
 
-  const handleEditReview = async () => {
-    try {
-      await axios.put(`/reviews/${myReview.Review_ID}`, myReview);
-      setIsEditing(false); // Exit editing mode*************************************************************
-    } catch (err) {
-      setReviewError(err.response?.data?.error || 'Error saving review');
-    }
-  };
 
   const handleGenre = (gameTitle) => {
     navigate(`/Genre/${gameTitle.replace(/\s+/g, '__')}`);
@@ -293,35 +285,8 @@ const Game = () => {
       </div>
       <div className="Review_container">
         <h2>Reviews</h2>
-        {/* Review form or user's review */}
         {reviewed ? (
-          <div className="my-review">
-            <h3>Your Review</h3>
-            <div className="stars">
-              <ReactStars
-                count={5}
-                value={myReview.Rating}
-                size={45}
-                edit={false}
-                activeColor="#ffd700"
-              />
-            </div>
-            <textarea
-              className="review_textbox"
-              value={myReview.Comment}
-              readOnly={!isEditing}
-              onChange={(e) =>
-                setMyReview({ ...myReview, Comment: e.target.value })
-              }
-            />
-            <div>
-              {isEditing ? (
-                <button className="form-button" onClick={handleEditReview}>Save</button>
-              ) : (
-                <button className="form-button" onClick={() => setIsEditing(true)}>Edit</button>
-              )}
-            </div>
-            {reviewError && <p className="error-message">{reviewError}</p>}
+          <div>
           </div>
         ) : (
           <div className="review-form">
@@ -334,18 +299,17 @@ const Game = () => {
                 size={45}
                 activeColor="#ffd700"
               />
-            </div>
+            </div >
             <textarea
               className="review_textbox"
               value={reviewComment}
               onChange={(e) => setreviewComment(e.target.value)}
               placeholder="Write your review here..."
             />
-            <button lassName="form-button" onClick={handleReviewSubmit}>Submit Review</button>
+            <button className="form-button" onClick={handleReviewSubmit}>Submit Review</button>
             {reviewError && <p className="error-message">{reviewError}</p>}
           </div>
         )}
-        {/* Display existing reviews */}
         <div className="reviews-list">
           {reviews.length > 0 ? (
             reviews.map((review) => (

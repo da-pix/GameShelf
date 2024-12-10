@@ -55,9 +55,11 @@ textarea {
 }
 
 .review {
-    background-color: #e2cec6;
+    background-color: #f3eedf;
     padding: 5px;
-    border: 2px solid #cfcbc8;
+    border: 1px solid #cfcbc8;
+    margin: 10px;
+    padding: 10px;
 }
 
 .review p {
@@ -93,8 +95,10 @@ textarea {
     align-items: flex-start;
     margin: 0;
 }
-.buttons-message{
-text-align: center;}
+
+.buttons-message {
+    text-align: center;
+}
 
 .game-sidebar {
     margin-left: 20px;
@@ -141,6 +145,12 @@ text-align: center;}
     width: auto;
     height: auto;
     font-size: 0.9rem;
+}
+
+.review-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .buttons-container p {
@@ -234,6 +244,7 @@ text-align: center;}
 .popup button:focus {
     outline: none;
 }
-.hours-input{
+
+.hours-input {
     width: 40px;
 }

@@ -124,8 +124,8 @@ const TopBar = () => {
                     <h1>Game Shelf</h1>
                 </Link>
                 <img className="icon" onClick={handleRandGame} id="feeling-lucky-icon" src="/icons/dice.png" alt="Feeling lucky Icon" />
-                {(!!user && user.isAdmin) &&
-                    (<img className="icon" onClick={handleAdminTools} id="Admin-tools" src="/icons/gear.png" alt="Admin tools" />)}
+                {(!!user && user.isAdmin) ?
+                    (<img className="icon" onClick={handleAdminTools} id="Admin-tools" src="/icons/gear.png" alt="Admin tools" />): (<></>)}
             </div>
 
             <div className="search-bar">
