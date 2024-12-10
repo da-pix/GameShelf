@@ -674,6 +674,36 @@ app.post('/unfollow', (req, res) => {
   });
 });
 
+app.post('/ban-user', (req, res) => {
+  const { adminID, userID } = req.body;
+
+  // Check if the requester is an admin
+  const checkAdminQuery = `SELECT AdminFlag FROM user WHERE User_ID = ?`;
+  db.query(checkAdminQuery, [adminID], (err, result) => {
+    if (err || !result.length || !result[0].AdminFlag) {
+      return res.status(403).send('Unauthorized action.');
+    }
+
+    // Delete user and related data
+    const deleteUserQuery = `
+      DELETE FROM shelf WHERE User_ID = ?;
+      DELETE FROM favorites WHERE User_ID = ?;
+      DELETE FROM follows WHERE Follower_ID = ? OR Followed_ID = ?;
+      DELETE FROM user WHERE User_ID = ?;
+    `;
+
+    db.query(deleteUserQuery, [userID, userID, userID, userID, userID], (err) => {
+      if (err) {
+        console.error("Error deleting user:", err);
+        return res.status(500).send('Error deleting user.');
+      }
+      res.status(200).send('User and associated data deleted successfully.');
+    });
+  });
+});
+
+
+
 app.get('/find-games', (req, res) => {
   const query = req.query.query;
   const searchQuery = `
@@ -690,6 +720,21 @@ app.get('/find-games', (req, res) => {
     res.status(200).json(results);
   });
 });
+
+app.get('/wishlist/:userID', (req, res) => {
+  const { userID } = req.params;
+  const query = `
+    SELECT * FROM wishlist AS W
+    JOIN game AS G ON W.Game_ID = G.Game_ID
+    WHERE W.User_ID = ?
+  `;
+  db.query(query, [userID], (err, results) => {
+    if (err) return res.status(500).send('Database error');
+    if (!results.length) return res.status(404).send('No wishlist found');
+    res.status(200).send(results);
+  });
+});
+
 
 app.listen(8800, () => {
   console.log("connected to backend!");
