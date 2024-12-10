@@ -302,7 +302,18 @@ app.get('/game/:gameTitle', (req, res) => {
         `;
         db.query(genreQuery, [gameID], (err, genreData) => {
           if (err) return res.status(500).json({ error: 'Database error' });
-          return res.status(200).json({ game, platformData, genreData, isInShelf });
+
+          // Check if the game is in the user's shelf
+          const checkFavQuery = `
+            SELECT Game_ID
+            FROM favorite
+            WHERE Game_ID = ? AND User_ID = ?
+          `;
+          db.query(checkFavQuery, [gameID, userID], (err, favResult) => {
+            if (err) return res.status(500).json({ error: 'Database error' });
+            const isfavorited = favResult.length > 0;
+            return res.status(200).json({ game, platformData, genreData, isInShelf, isfavorited });
+          })
         })
       });
     });
@@ -670,13 +681,13 @@ app.get('/find-games', (req, res) => {
       WHERE Title LIKE ?
   `;
   db.query(searchQuery, [`%${query}%`], (err, results) => {
-      if (err) {
-          return res.status(500).json({ error: 'Database error' });
-      }
-      if (results.length === 0) {
-          return res.status(404).json({ error: 'No games found' });
-      }
-      res.status(200).json(results);
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'No games found' });
+    }
+    res.status(200).json(results);
   });
 });
 

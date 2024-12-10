@@ -18,7 +18,6 @@ const Game = () => {
   const [error, setError] = useState(null);
   const { user } = useContext(UserContext);
   const [addToShelfMessage, setAddToShelfMessage] = useState('');
-  const [favoriteMessage, setFavoriteMessage] = useState('');
   const [inShelf, setInShelf] = useState(false);
   const [favorited, setFavorited] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -168,10 +167,10 @@ const Game = () => {
         Rating: rating,
         Comment: reviewComment,
       });
-      window.location.reload();
     } catch (err) {
       setReviewError(err.response?.data?.error || 'Error submitting review');
     }
+    navigate(0)
   };
 
   const handleEditReview = async () => {
