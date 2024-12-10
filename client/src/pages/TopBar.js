@@ -71,7 +71,11 @@ const TopBar = () => {
 
     // Shelf button funcionality
     const handleShelf = () => {
-        navigate(`/shelf/${user.username.replace(/\s+/g, '__')}`);
+        if (!user) {
+            navigate('/login');
+        } else {
+            navigate(`/shelf/${user.username.replace(/\s+/g, '__')}`);
+        }
     };
 
     const handleRandGame = async () => {

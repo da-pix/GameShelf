@@ -61,6 +61,22 @@ const Profile = () => {
     }
   };
 
+  const handleBanUser = async () => {
+    if (!user || !user.isAdmin) return;
+    const confirmBan = window.confirm(`Are you sure you want to delete ${username.replace(/__/g, ' ')}'s account? This action cannot be undone.`);
+    if (!confirmBan) return;
+
+    try {
+      await axios.post('http://localhost:8800/ban-user', {
+        adminID: user.userID,
+        userID: profile.User_ID,
+      });
+      alert(`${username.replace(/__/g, ' ')}'s account has been deleted.`);
+      navigate('/'); // Redirect after banning
+    } catch (err) {
+      alert(err.response?.data || 'Error deleting user.');
+    }
+  };
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -74,9 +90,16 @@ const Profile = () => {
       <div className="profile-header">
         <h1>{username.replace(/__/g, ' ')}'s Profile</h1>
         {!ownsPage && user && (
-          <button className="follow-button" onClick={handleFollowToggle}>
-            {isFollowing ? 'Unfollow' : 'Follow'}
-          </button>
+          <div className="action-buttons">
+            <button className="follow-button" onClick={handleFollowToggle}>
+              {isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+            {user.isAdmin && (
+              <button className="ban-button" onClick={handleBanUser}>
+                Ban User
+              </button>
+            )}
+          </div>
         )}
       </div>
       <div>

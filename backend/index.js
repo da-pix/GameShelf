@@ -236,7 +236,7 @@ app.get('/shelf/:username', (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     const userId = userResults[0].User_ID;
-    // Get user's shelf games ***************************get number of games
+    // Get user's shelf games
     const shelfQuery = `
       SELECT G.Game_ID, G.Title, G.Producer, G.Coverart_fp, G.Overall_rating, G.Release_date, GS.Hours_played, GST.Studio_ID, GST.Studio_name
       FROM games_in_shelf AS GS
@@ -707,6 +707,31 @@ app.get('/find-games', (req, res) => {
       return res.status(404).json({ error: 'No games found' });
     }
     res.status(200).json(results);
+  });
+});
+
+app.post('/ban-user', (req, res) => {
+  const { adminID, userID } = req.body;
+  // Check if the requester is an admin
+  const checkAdminQuery = `SELECT AdminFlag FROM user WHERE User_ID = ?`;
+  db.query(checkAdminQuery, [adminID], (err, result) => {
+    if (err || !result.length || !result[0].AdminFlag) {
+      return res.status(403).send('Unauthorized action.');
+    }
+    // Delete user and related data
+    const deleteUserQuery = `
+      DELETE FROM shelf WHERE User_ID = ?;
+      DELETE FROM favorites WHERE User_ID = ?;
+      DELETE FROM follows WHERE Follower_ID = ? OR Followed_ID = ?;
+      DELETE FROM user WHERE User_ID = ?;
+    `;
+    db.query(deleteUserQuery, [userID, userID, userID, userID, userID], (err) => {
+      if (err) {
+        console.error("Error deleting user:", err);
+        return res.status(500).send('Error deleting user.');
+      }
+      res.status(200).send('User and associated data deleted successfully.');
+    });
   });
 });
 
